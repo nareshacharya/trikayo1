@@ -40,7 +40,7 @@ class SettingsService {
   // Initialize settings
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Load saved settings
     final notificationsEnabled = prefs.getBool(_notificationsKey) ?? true;
     final darkModeEnabled = prefs.getBool(_darkModeKey) ?? false;
@@ -57,7 +57,7 @@ class SettingsService {
   static Future<void> setNotificationsEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_notificationsKey, enabled);
-    
+
     if (enabled) {
       await _requestNotificationPermissions();
     }
@@ -85,7 +85,7 @@ class SettingsService {
   static Future<void> setBiometricEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_biometricKey, enabled);
-    
+
     if (enabled) {
       await _checkBiometricAvailability();
     }
@@ -117,7 +117,7 @@ class SettingsService {
   static Future<Map<String, dynamic>> exportData() async {
     final prefs = await SharedPreferences.getInstance();
     final settings = await getSettings();
-    
+
     // In a real app, you'd also export user data, meal history, etc.
     return {
       'exportDate': DateTime.now().toIso8601String(),
@@ -130,7 +130,7 @@ class SettingsService {
   static Future<void> deleteAccountData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    
+
     // In a real app, you'd also delete data from your backend
     // and handle account deletion through your auth service
   }
@@ -142,7 +142,7 @@ class SettingsService {
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    
+
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings();
 
