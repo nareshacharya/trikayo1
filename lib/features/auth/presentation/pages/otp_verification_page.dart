@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:otp_text_field/otp_text_field.dart';
-import 'package:otp_text_field/style.dart';
+// import 'package:otp_text_field/otp_text_field.dart';
+// import 'package:otp_text_field/style.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../app/theme/app_theme.dart';
@@ -15,7 +15,6 @@ class OtpVerificationPage extends StatefulWidget {
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
-  final OtpFieldController _otpController = OtpFieldController();
   bool _isLoading = false;
   bool _isResendEnabled = true;
   int _resendCountdown = 30;
@@ -29,7 +28,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   @override
   void dispose() {
-    _otpController.clear();
     super.dispose();
   }
 
@@ -116,25 +114,26 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Widget _buildOtpField() {
     return Column(
       children: [
-        OTPTextField(
-          controller: _otpController,
-          length: 6,
-          width: MediaQuery.of(context).size.width,
-          textFieldAlignment: MainAxisAlignment.spaceEvenly,
-          fieldWidth: 45,
-          fieldStyle: FieldStyle.box,
-          outlineBorderRadius: AppConstants.defaultRadius,
+        TextField(
+          maxLength: 6,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          onChanged: (pin) {
+          decoration: InputDecoration(
+            hintText: 'Enter 6-digit code',
+            counterText: '',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppConstants.defaultRadius),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+          ),
+          onChanged: (value) {
             setState(() {
-              _otp = pin;
+              _otp = value;
             });
-          },
-          onCompleted: (pin) {
-            setState(() {
-              _otp = pin;
-            });
-            _handleVerification();
           },
         )
             .animate()

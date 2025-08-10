@@ -108,7 +108,7 @@ class _MainShell extends StatelessWidget {
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {
-    final location = GoRouterState.of(context).location;
+    final location = GoRouterState.of(context).uri.path;
 
     return BottomNavigationBar(
       currentIndex: _getCurrentIndex(location),

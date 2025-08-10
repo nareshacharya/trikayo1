@@ -27,14 +27,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       'name': 'Grilled Chicken Salad',
       'price': 12.99,
       'quantity': 2,
-      'image': 'https://picsum.photos/100/100?random=1',
     },
     {
       'id': '2',
       'name': 'Quinoa Bowl',
       'price': 14.99,
       'quantity': 1,
-      'image': 'https://picsum.photos/100/100?random=2',
     },
   ];
 

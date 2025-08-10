@@ -1,71 +1,117 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/models/user.dart';
+import '../data/models/user.dart' as app_user;
 import '../core/constants/app_constants.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  app_user.User? _currentUser;
+  bool _isSignedIn = false;
 
-  // Sign in with Google
-  Future<UserCredential?> signInWithGoogle() async {
+  // Mock sign in with email
+  Future<app_user.User?> signInWithEmail(String email, String password) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      // Mock user data
+      _currentUser = app_user.User(
+        id: 'mock_user_001',
+        email: email,
+        name: 'Mock User',
+        phone: '+1234567890',
+        tier: 'Basic',
+        avatarUrl: null,
       );
 
-      return await _auth.signInWithCredential(credential);
+      _isSignedIn = true;
+      return _currentUser;
+    } catch (e) {
+      throw Exception('Failed to sign in: $e');
+    }
+  }
+
+  // Mock sign in with Google
+  Future<app_user.User?> signInWithGoogle() async {
+    try {
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Mock user data
+      _currentUser = app_user.User(
+        id: 'google_user_001',
+        email: 'user@gmail.com',
+        name: 'Google User',
+        phone: '+1234567890',
+        tier: 'Basic',
+        avatarUrl: null,
+      );
+
+      _isSignedIn = true;
+      return _currentUser;
     } catch (e) {
       throw Exception('Failed to sign in with Google: $e');
     }
   }
 
-  // Sign in with Apple
-  Future<UserCredential?> signInWithApple() async {
+  // Mock sign in with Apple
+  Future<app_user.User?> signInWithApple() async {
     try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Mock user data
+      _currentUser = app_user.User(
+        id: 'apple_user_001',
+        email: 'user@icloud.com',
+        name: 'Apple User',
+        phone: '+1234567890',
+        tier: 'Basic',
+        avatarUrl: null,
       );
 
-      final oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
-
-      return await _auth.signInWithCredential(oauthCredential);
+      _isSignedIn = true;
+      return _currentUser;
     } catch (e) {
       throw Exception('Failed to sign in with Apple: $e');
     }
   }
 
-  // Send OTP to email
+  // Send OTP to email (mock)
   Future<void> sendOtp(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
+      if (kDebugMode) {
+        print('Mock OTP sent to $email: 123456');
+      }
     } catch (e) {
       throw Exception('Failed to send OTP: $e');
     }
   }
 
-  // Verify OTP
-  Future<UserCredential?> verifyOtp(String email, String otp) async {
+  // Verify OTP (mock)
+  Future<app_user.User?> verifyOtp(String email, String otp) async {
     try {
-      // In a real implementation, you would verify the OTP with your backend
-      // For now, we'll simulate this by creating a custom token
-      final customToken = await _generateCustomToken(email);
-      return await _auth.signInWithCustomToken(customToken);
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Mock verification (accept any 6-digit code)
+      if (otp.length == 6 && int.tryParse(otp) != null) {
+        _currentUser = app_user.User(
+          id: 'otp_user_001',
+          email: email,
+          name: 'OTP User',
+          phone: '+1234567890',
+          tier: 'Basic',
+          avatarUrl: null,
+        );
+
+        _isSignedIn = true;
+        return _currentUser;
+      } else {
+        throw Exception('Invalid OTP');
+      }
     } catch (e) {
       throw Exception('Failed to verify OTP: $e');
     }
@@ -74,41 +120,31 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
-      await _googleSignIn.signOut();
-      await _auth.signOut();
+      // Simulate network delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      _currentUser = null;
+      _isSignedIn = false;
     } catch (e) {
       throw Exception('Failed to sign out: $e');
     }
   }
 
   // Get current user
-  User? getCurrentUser() {
-    return _auth.currentUser;
+  app_user.User? getCurrentUser() {
+    return _currentUser;
   }
 
   // Check if user is signed in
-  bool get isSignedIn => _auth.currentUser != null;
+  bool get isSignedIn => _isSignedIn;
 
-  // Stream of auth state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
-
-  // Generate custom token (mock implementation)
-  Future<String> _generateCustomToken(String email) async {
-    // In a real implementation, this would call your backend
-    await Future.delayed(const Duration(milliseconds: 500));
-    return 'mock_custom_token_$email';
+  // Stream of auth state changes (mock)
+  Stream<app_user.User?> get authStateChanges {
+    return Stream.value(_currentUser);
   }
 
-  // Create user profile from Firebase user
-  User createUserProfile(firebase_auth.User firebaseUser) {
-    return User(
-      id: firebaseUser.uid,
-      name: firebaseUser.displayName ?? 'User',
-      email: firebaseUser.email ?? '',
-      phone: firebaseUser.phoneNumber ?? '',
-      tier: AppConstants.tierBasic, // Default to Basic tier
-      avatarUrl: firebaseUser.photoURL,
-    );
+  // Create user profile from mock data
+  app_user.User createUserProfile(app_user.User user) {
+    return user;
   }
 }
 
@@ -116,7 +152,7 @@ class AuthService {
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
 // Provider for current user
-final currentUserProvider = StreamProvider<User?>((ref) {
+final currentUserProvider = StreamProvider<app_user.User?>((ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
 });

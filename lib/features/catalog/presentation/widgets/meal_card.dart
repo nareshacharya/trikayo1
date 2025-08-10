@@ -52,23 +52,15 @@ class MealCard extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(AppConstants.defaultRadius),
           ),
-          child: Image.asset(
-            meal['image'] ?? 'assets/images/placeholder.jpg',
+          child: Container(
             height: 120,
             width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                height: 120,
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: const Icon(
-                  Icons.restaurant,
-                  size: 40,
-                  color: Colors.grey,
-                ),
-              );
-            },
+            color: Colors.grey[300],
+            child: const Icon(
+              Icons.restaurant,
+              size: 40,
+              color: Colors.grey,
+            ),
           ),
         ),
         Positioned(

@@ -4,14 +4,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app/app.dart';
-import 'app/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
+import 'services/settings_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
-  await dotenv.load(fileName: 'env.example');
+  // Load environment variables (temporarily disabled)
+  // await dotenv.load(fileName: '.env');
 
   // Initialize Hive for local storage
   await Hive.initFlutter();
@@ -27,7 +27,7 @@ class TrikayoApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
+    final themeMode = ref.watch(SettingsService.themeModeProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,

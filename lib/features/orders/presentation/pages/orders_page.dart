@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../data/models/order.dart';
+import '../../../../data/models/meal.dart';
 import '../widgets/order_card.dart';
 
 class OrdersPage extends ConsumerStatefulWidget {
@@ -215,91 +217,84 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
     );
   }
 
-  List<Map<String, dynamic>> _getActiveOrders() {
+  List<Order> _getActiveOrders() {
     // Mock data - in real app, this would come from a repository
     return [
-      {
-        'id': 'ORD001',
-        'orderNumber': '#ORD001',
-        'date': '2024-01-15',
-        'time': '12:30 PM',
-        'status': 'preparing',
-        'total': 29.97,
-        'items': [
-          {'name': 'Grilled Chicken Bowl', 'quantity': 1, 'price': 14.99},
-          {'name': 'Veggie Power Bowl', 'quantity': 1, 'price': 11.99},
+      Order(
+        id: 'ORD001',
+        items: [
+          OrderItem(mealId: '1', quantity: 1),
+          OrderItem(mealId: '2', quantity: 1),
         ],
-        'estimatedDelivery': '1:30 PM',
-        'restaurant': 'Healthy Eats Kitchen',
-      },
-      {
-        'id': 'ORD002',
-        'orderNumber': '#ORD002',
-        'date': '2024-01-15',
-        'time': '2:15 PM',
-        'status': 'placed',
-        'total': 15.99,
-        'items': [
-          {'name': 'Salmon Quinoa Bowl', 'quantity': 1, 'price': 15.99},
+        total: 29.97,
+        address: '123 Main St, City',
+        slot: '12:30 PM - 1:30 PM',
+        status: 'preparing',
+        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+      Order(
+        id: 'ORD002',
+        items: [
+          OrderItem(mealId: '3', quantity: 1),
         ],
-        'estimatedDelivery': '3:15 PM',
-        'restaurant': 'Fresh & Co',
-      },
+        total: 15.99,
+        address: '456 Oak Ave, City',
+        slot: '2:15 PM - 3:15 PM',
+        status: 'placed',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+      ),
     ];
   }
 
-  List<Map<String, dynamic>> _getPastOrders() {
+  List<Order> _getPastOrders() {
     // Mock data - in real app, this would come from a repository
     return [
-      {
-        'id': 'ORD003',
-        'orderNumber': '#ORD003',
-        'date': '2024-01-14',
-        'time': '6:00 PM',
-        'status': 'delivered',
-        'total': 25.98,
-        'items': [
-          {'name': 'Breakfast Burrito', 'quantity': 2, 'price': 9.99},
-          {'name': 'Greek Yogurt Parfait', 'quantity': 1, 'price': 6.00},
+      Order(
+        id: 'ORD003',
+        items: [
+          OrderItem(mealId: '4', quantity: 2),
+          OrderItem(mealId: '5', quantity: 1),
         ],
-        'deliveredAt': '7:15 PM',
-        'restaurant': 'Morning Delights',
-      },
-      {
-        'id': 'ORD004',
-        'orderNumber': '#ORD004',
-        'date': '2024-01-13',
-        'time': '1:00 PM',
-        'status': 'delivered',
-        'total': 18.98,
-        'items': [
-          {'name': 'Mediterranean Wrap', 'quantity': 1, 'price': 10.99},
-          {'name': 'Side Salad', 'quantity': 1, 'price': 7.99},
+        total: 25.98,
+        address: '789 Pine St, City',
+        slot: '6:00 PM - 7:00 PM',
+        status: 'delivered',
+        deliveredAt:
+            DateTime.now().subtract(const Duration(days: 1, hours: 17)),
+        createdAt: DateTime.now().subtract(const Duration(days: 1, hours: 18)),
+      ),
+      Order(
+        id: 'ORD004',
+        items: [
+          OrderItem(mealId: '6', quantity: 1),
+          OrderItem(mealId: '7', quantity: 1),
         ],
-        'deliveredAt': '1:45 PM',
-        'restaurant': 'Fresh & Co',
-      },
+        total: 18.98,
+        address: '321 Elm St, City',
+        slot: '1:00 PM - 2:00 PM',
+        status: 'delivered',
+        deliveredAt:
+            DateTime.now().subtract(const Duration(days: 2, hours: 13)),
+        createdAt: DateTime.now().subtract(const Duration(days: 2, hours: 23)),
+      ),
     ];
   }
 
-  List<Map<String, dynamic>> _getCancelledOrders() {
+  List<Order> _getCancelledOrders() {
     // Mock data - in real app, this would come from a repository
     return [
-      {
-        'id': 'ORD005',
-        'orderNumber': '#ORD005',
-        'date': '2024-01-12',
-        'time': '7:30 PM',
-        'status': 'cancelled',
-        'total': 22.97,
-        'items': [
-          {'name': 'Pasta Primavera', 'quantity': 1, 'price': 16.99},
-          {'name': 'Garlic Bread', 'quantity': 1, 'price': 5.98},
+      Order(
+        id: 'ORD005',
+        items: [
+          OrderItem(mealId: '8', quantity: 1),
+          OrderItem(mealId: '9', quantity: 1),
         ],
-        'cancelledAt': '7:45 PM',
-        'restaurant': 'Italian Delight',
-        'cancellationReason': 'Restaurant was too busy',
-      },
+        total: 22.97,
+        address: '654 Maple Dr, City',
+        slot: '7:30 PM - 8:30 PM',
+        status: 'cancelled',
+        createdAt: DateTime.now().subtract(const Duration(days: 3, hours: 16)),
+      ),
     ];
   }
 }

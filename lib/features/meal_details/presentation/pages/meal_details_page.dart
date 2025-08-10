@@ -82,7 +82,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
             size: 20,
           ),
         ),
-        onPressed: () => context.pop(),
+        onPressed: () => context.go('/catalog'),
       ),
       actions: [
         IconButton(
@@ -124,19 +124,15 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              _meal['image'] ?? 'assets/images/placeholder.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.restaurant,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
-                );
-              },
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: Colors.grey[300],
+              child: const Icon(
+                Icons.restaurant,
+                size: 80,
+                color: Colors.grey,
+              ),
             ),
             Container(
               decoration: BoxDecoration(
@@ -172,19 +168,15 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppConstants.defaultRadius),
-        child: Image.asset(
-          _meal['image'] ?? 'assets/images/placeholder.jpg',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.restaurant,
-                size: 60,
-                color: Colors.grey,
-              ),
-            );
-          },
+        child: Container(
+          height: 200,
+          width: double.infinity,
+          color: Colors.grey[300],
+          child: const Icon(
+            Icons.restaurant,
+            size: 60,
+            color: Colors.grey,
+          ),
         ),
       ),
     ).animate().fadeIn(delay: AppConstants.shortAnimation);
@@ -216,10 +208,10 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               ),
             ),
           ],
-        ).animate().slideX(begin: -0.3, end: 0, delay: AppConstants.shortAnimation),
-        
+        )
+            .animate()
+            .slideX(begin: -0.3, end: 0, delay: AppConstants.shortAnimation),
         const SizedBox(height: 8),
-        
         Row(
           children: [
             Icon(
@@ -251,10 +243,10 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               ),
             ),
           ],
-        ).animate().slideX(begin: -0.3, end: 0, delay: AppConstants.mediumAnimation),
-        
+        )
+            .animate()
+            .slideX(begin: -0.3, end: 0, delay: AppConstants.mediumAnimation),
         const SizedBox(height: 16),
-        
         Text(
           _meal['description'] ?? 'No description available',
           style: TextStyle(
@@ -279,9 +271,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
             color: AppTheme.textPrimary,
           ),
         ).animate().fadeIn(delay: AppConstants.shortAnimation),
-        
         const SizedBox(height: 16),
-        
         Row(
           children: [
             _buildNutritionCard(
@@ -305,12 +295,15 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               Colors.orange,
             ),
           ],
-        ).animate().slideY(begin: 0.3, end: 0, delay: AppConstants.mediumAnimation),
+        )
+            .animate()
+            .slideY(begin: 0.3, end: 0, delay: AppConstants.mediumAnimation),
       ],
     );
   }
 
-  Widget _buildNutritionCard(String label, String value, IconData icon, Color color) {
+  Widget _buildNutritionCard(
+      String label, String value, IconData icon, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -356,22 +349,11 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
             color: AppTheme.textPrimary,
           ),
         ).animate().fadeIn(delay: AppConstants.shortAnimation),
-        
+
         const SizedBox(height: 16),
-        
+
         // Mock ingredients - TODO: Replace with actual data
-        const List<String> ingredients = [
-          'Fresh mixed greens',
-          'Grilled chicken breast',
-          'Cherry tomatoes',
-          'Cucumber',
-          'Red onion',
-          'Olive oil',
-          'Balsamic vinegar',
-          'Salt and pepper',
-        ];
-        
-        ...ingredients.map((ingredient) => Padding(
+        Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             children: [
@@ -382,7 +364,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                ingredient,
+                'Fresh mixed greens',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
@@ -390,7 +372,154 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               ),
             ],
           ),
-        )).animate().fadeIn(delay: AppConstants.mediumAnimation),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Grilled chicken breast',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Cherry tomatoes',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Cucumber',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Red onion',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Olive oil',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Balsamic vinegar',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.circle,
+                size: 8,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Salt and pepper',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
       ],
     );
   }
@@ -407,69 +536,283 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
             color: AppTheme.textPrimary,
           ),
         ).animate().fadeIn(delay: AppConstants.shortAnimation),
-        
+
         const SizedBox(height: 16),
-        
+
         // Mock instructions - TODO: Replace with actual data
-        const List<String> instructions = [
-          'Wash and prepare all vegetables',
-          'Season chicken breast with salt and pepper',
-          'Grill chicken until fully cooked',
-          'Slice vegetables and arrange on plate',
-          'Place grilled chicken on top',
-          'Drizzle with olive oil and balsamic vinegar',
-          'Serve immediately while warm',
-        ];
-        
-        ...instructions.asMap().entries.map((entry) {
-          final index = entry.key;
-          final instruction = entry.value;
-          
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
+                child: Center(
                   child: Text(
-                    instruction,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppTheme.textSecondary,
-                      height: 1.5,
+                    '1',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        }).animate().fadeIn(delay: AppConstants.mediumAnimation),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Wash and prepare all vegetables',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '2',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Season chicken breast with salt and pepper',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '3',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Grill chicken until fully cooked',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '4',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Slice vegetables and arrange on plate',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '5',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Place grilled chicken on top',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '6',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Drizzle with olive oil and balsamic vinegar',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '7',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Serve immediately while warm',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
       ],
     );
   }
 
   Widget _buildAddToCartButton() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
+      margin:
+          const EdgeInsets.symmetric(horizontal: AppConstants.defaultPadding),
       child: Row(
         children: [
           Container(
@@ -481,11 +824,13 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  onPressed: _quantity > 1 ? () {
-                    setState(() {
-                      _quantity--;
-                    });
-                  } : null,
+                  onPressed: _quantity > 1
+                      ? () {
+                          setState(() {
+                            _quantity--;
+                          });
+                        }
+                      : null,
                   icon: const Icon(Icons.remove),
                 ),
                 Text(
@@ -519,7 +864,8 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Text(
@@ -545,14 +891,15 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
     try {
       // TODO: Implement actual add to cart logic
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Added $_quantity ${_quantity == 1 ? 'item' : 'items'} to cart'),
+          content: Text(
+              'Added $_quantity ${_quantity == 1 ? 'item' : 'items'} to cart'),
           backgroundColor: AppTheme.successColor,
         ),
       );
-      
+
       // Navigate to checkout
       context.go('/checkout');
     } catch (e) {
@@ -574,14 +921,13 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
     return {
       'id': widget.mealId,
       'name': 'Grilled Chicken Salad',
-      'description': 'A fresh and nutritious salad featuring tender grilled chicken breast served over a bed of mixed greens with cherry tomatoes, cucumber, and red onion. Dressed with a light olive oil and balsamic vinegar dressing.',
+      'description':
+          'A fresh and nutritious salad featuring tender grilled chicken breast served over a bed of mixed greens with cherry tomatoes, cucumber, and red onion. Dressed with a light olive oil and balsamic vinegar dressing.',
       'price': 12.99,
       'calories': 320,
-      'image': 'assets/images/grilled_chicken_salad.jpg',
       'category': 'Lunch',
       'rating': 4.5,
       'prepTime': '15 min',
     };
   }
 }
-

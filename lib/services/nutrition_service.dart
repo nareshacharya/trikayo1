@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/meal.dart';
 import '../data/models/subscription.dart';
 import '../data/repositories/mock_meal_repository.dart';
+import '../core/constants/app_constants.dart';
 
 class NutritionService {
   final MockMealRepository _mealRepository;
@@ -163,8 +164,7 @@ class NutritionService {
     final idealCarbs = 0.5;
     final idealFat = 0.2;
 
-    final balance =
-        1 -
+    final balance = 1 -
         ((proteinRatio - idealProtein).abs() +
                 (carbsRatio - idealCarbs).abs() +
                 (fatRatio - idealFat).abs()) /

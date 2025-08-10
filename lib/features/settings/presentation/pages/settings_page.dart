@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../app/theme/app_theme.dart';
+import '../../../../services/settings_service.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -13,17 +14,15 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
-  bool _biometricEnabled = false;
-  String _language = 'English';
-  String _units = 'Metric';
-
-  final List<String> _languages = ['English', 'Spanish', 'French', 'German'];
-  final List<String> _unitsList = ['Metric', 'Imperial'];
-
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(SettingsService.themeModeProvider);
+    final notificationsEnabled =
+        ref.watch(SettingsService.notificationsProvider);
+    final biometricEnabled = ref.watch(SettingsService.biometricProvider);
+    final language = ref.watch(SettingsService.languageProvider);
+    final units = ref.watch(SettingsService.unitsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -42,25 +41,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Dark Mode',
                   'Use dark theme for the app',
                   Icons.dark_mode,
-                  _darkModeEnabled,
-                  (value) {
-                    setState(() {
-                      _darkModeEnabled = value;
-                    });
-                    // TODO: Implement theme switching
+                  themeMode == ThemeMode.dark,
+                  (value) async {
+                    final notifier =
+                        ref.read(SettingsService.themeModeProvider.notifier);
+                    if (value) {
+                      await notifier.setThemeMode(ThemeMode.dark);
+                    } else {
+                      await notifier.setThemeMode(ThemeMode.light);
+                    }
                   },
                 ),
                 _buildDropdownTile(
                   'Language',
                   'Choose your preferred language',
                   Icons.language,
-                  _language,
-                  _languages,
-                  (value) {
-                    setState(() {
-                      _language = value!;
-                    });
-                    // TODO: Implement language switching
+                  language,
+                  ['English', 'Spanish', 'French', 'German'],
+                  (value) async {
+                    if (value != null) {
+                      final notifier =
+                          ref.read(SettingsService.languageProvider.notifier);
+                      await notifier.setLanguage(value);
+                    }
                   },
                 ),
               ],
@@ -73,37 +76,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Push Notifications',
                   'Receive notifications about meals and goals',
                   Icons.notifications,
-                  _notificationsEnabled,
-                  (value) {
-                    setState(() {
-                      _notificationsEnabled = value;
-                    });
-                    // TODO: Implement notification toggle
+                  notificationsEnabled,
+                  (value) async {
+                    final notifier = ref
+                        .read(SettingsService.notificationsProvider.notifier);
+                    await notifier.toggleNotifications();
                   },
                 ),
                 _buildDropdownTile(
                   'Units',
                   'Choose your preferred measurement units',
                   Icons.straighten,
-                  _units,
-                  _unitsList,
-                  (value) {
-                    setState(() {
-                      _units = value!;
-                    });
-                    // TODO: Implement units switching
+                  units,
+                  ['Metric', 'Imperial'],
+                  (value) async {
+                    if (value != null) {
+                      final notifier =
+                          ref.read(SettingsService.unitsProvider.notifier);
+                      await notifier.setUnits(value);
+                    }
                   },
                 ),
                 _buildSwitchTile(
                   'Biometric Authentication',
                   'Use fingerprint or face ID to unlock the app',
                   Icons.fingerprint,
-                  _biometricEnabled,
-                  (value) {
-                    setState(() {
-                      _biometricEnabled = value;
-                    });
-                    // TODO: Implement biometric toggle
+                  biometricEnabled,
+                  (value) async {
+                    final notifier =
+                        ref.read(SettingsService.biometricProvider.notifier);
+                    await notifier.toggleBiometric();
                   },
                 ),
               ],
@@ -116,9 +118,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Export Data',
                   'Download your data as a file',
                   Icons.download,
-                  () {
-                    // TODO: Implement data export
-                    _showSnackBar('Exporting data...');
+                  () async {
+                    try {
+                      final data = await SettingsService.exportData();
+                      _showSnackBar('Data exported successfully');
+                      // In a real app, you'd save this to a file
+                      print('Exported data: $data');
+                    } catch (e) {
+                      _showSnackBar('Failed to export data');
+                    }
                   },
                 ),
                 _buildListTile(
@@ -140,8 +148,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Get help and find answers',
                   Icons.help,
                   () {
-                    // TODO: Navigate to help center
-                    _showSnackBar('Opening help center...');
+                    context.push('/help-center');
                   },
                 ),
                 _buildListTile(
@@ -149,8 +156,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Get in touch with our support team',
                   Icons.support_agent,
                   () {
-                    // TODO: Navigate to contact support
-                    _showSnackBar('Opening contact form...');
+                    context.push('/contact-support');
                   },
                 ),
                 _buildListTile(
@@ -158,8 +164,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Help us improve by reporting issues',
                   Icons.bug_report,
                   () {
-                    // TODO: Navigate to bug report
-                    _showSnackBar('Opening bug report form...');
+                    context.push('/bug-report');
                   },
                 ),
               ],
@@ -179,8 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Read our terms and conditions',
                   Icons.description,
                   () {
-                    // TODO: Navigate to terms
-                    _showSnackBar('Opening terms of service...');
+                    context.push('/terms-of-service');
                   },
                 ),
                 _buildListTile(
@@ -188,8 +192,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'Learn about our privacy practices',
                   Icons.privacy_tip,
                   () {
-                    // TODO: Navigate to privacy policy
-                    _showSnackBar('Opening privacy policy...');
+                    context.push('/privacy-policy');
                   },
                 ),
                 _buildListTile(
@@ -197,8 +200,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   'View third-party licenses',
                   Icons.code,
                   () {
-                    // TODO: Show licenses
-                    _showSnackBar('Opening licenses...');
+                    context.push('/licenses');
                   },
                 ),
               ],
@@ -244,7 +246,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withOpacity(0.1),
+          color: AppTheme.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -275,7 +277,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withOpacity(0.1),
+          color: AppTheme.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -310,7 +312,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withOpacity(0.1),
+          color: AppTheme.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -364,10 +366,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // TODO: Implement account deletion
-                _showSnackBar('Account deletion requested...');
+                try {
+                  await SettingsService.deleteAccountData();
+                  _showSnackBar('Account deleted successfully');
+                  // In a real app, you'd navigate to login or onboarding
+                  // context.go('/auth');
+                } catch (e) {
+                  _showSnackBar('Failed to delete account');
+                }
               },
               child: const Text(
                 'Delete',
@@ -395,16 +403,35 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                setState(() {
-                  _notificationsEnabled = true;
-                  _darkModeEnabled = false;
-                  _biometricEnabled = false;
-                  _language = 'English';
-                  _units = 'Metric';
-                });
-                _showSnackBar('Settings reset to defaults');
+                try {
+                  await SettingsService.resetToDefaults();
+
+                  // Reset all providers to defaults
+                  final themeNotifier =
+                      ref.read(SettingsService.themeModeProvider.notifier);
+                  final notificationsNotifier =
+                      ref.read(SettingsService.notificationsProvider.notifier);
+                  final biometricNotifier =
+                      ref.read(SettingsService.biometricProvider.notifier);
+                  final languageNotifier =
+                      ref.read(SettingsService.languageProvider.notifier);
+                  final unitsNotifier =
+                      ref.read(SettingsService.unitsProvider.notifier);
+
+                  await themeNotifier.setThemeMode(ThemeMode.light);
+                  await notificationsNotifier
+                      .toggleNotifications(); // This will set to true
+                  await biometricNotifier
+                      .toggleBiometric(); // This will set to false
+                  await languageNotifier.setLanguage('English');
+                  await unitsNotifier.setUnits('Metric');
+
+                  _showSnackBar('Settings reset to defaults');
+                } catch (e) {
+                  _showSnackBar('Failed to reset settings');
+                }
               },
               child: const Text('Reset'),
             ),

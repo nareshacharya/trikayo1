@@ -16,7 +16,7 @@ class HelpCenterPage extends StatelessWidget {
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/profile'),
         ),
       ),
       body: SingleChildScrollView(

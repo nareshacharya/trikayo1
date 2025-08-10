@@ -7,7 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../widgets/meal_card.dart';
 import '../widgets/category_filter.dart';
-import '../widgets/search_bar.dart';
+import '../widgets/search_bar.dart' as custom;
 
 class CatalogPage extends ConsumerStatefulWidget {
   const CatalogPage({super.key});
@@ -39,7 +39,6 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
       'description': 'Fresh mixed greens with grilled chicken breast',
       'price': 12.99,
       'calories': 320,
-      'image': 'assets/images/grilled_chicken_salad.jpg',
       'category': 'Lunch',
       'rating': 4.5,
       'prepTime': '15 min',
@@ -50,7 +49,6 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
       'description': 'Nutritious quinoa with roasted vegetables',
       'price': 14.99,
       'calories': 450,
-      'image': 'assets/images/quinoa_bowl.jpg',
       'category': 'Lunch',
       'rating': 4.3,
       'prepTime': '20 min',
@@ -61,7 +59,6 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
       'description': 'Steel-cut oats topped with fresh berries',
       'price': 8.99,
       'calories': 280,
-      'image': 'assets/images/oatmeal_berries.jpg',
       'category': 'Breakfast',
       'rating': 4.7,
       'prepTime': '10 min',
@@ -72,7 +69,6 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
       'description': 'Grilled salmon fillet with roasted asparagus',
       'price': 18.99,
       'calories': 380,
-      'image': 'assets/images/salmon_asparagus.jpg',
       'category': 'Dinner',
       'rating': 4.6,
       'prepTime': '25 min',
@@ -83,7 +79,6 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
       'description': 'Creamy Greek yogurt with granola and honey',
       'price': 6.99,
       'calories': 220,
-      'image': 'assets/images/greek_yogurt_parfait.jpg',
       'category': 'Breakfast',
       'rating': 4.4,
       'prepTime': '5 min',
@@ -109,7 +104,7 @@ class _CatalogPageState extends ConsumerState<CatalogPage> {
               padding: const EdgeInsets.all(AppConstants.defaultPadding),
               child: Column(
                 children: [
-                  SearchBar(
+                  custom.SearchBar(
                     controller: _searchController,
                     onChanged: (query) {
                       setState(() {

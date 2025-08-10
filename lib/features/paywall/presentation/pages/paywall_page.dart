@@ -99,7 +99,7 @@ class _PaywallPageState extends ConsumerState<PaywallPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         IconButton(
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/'),
           icon: const Icon(Icons.close),
         ),
         const SizedBox(height: 16),
