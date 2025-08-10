@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../app/theme/app_theme.dart';
+import '../../../../data/models/meal.dart';
+import '../../../../data/repositories/mock_meal_repository.dart';
 
 class MealDetailsPage extends StatefulWidget {
   final String mealId;
@@ -20,18 +22,70 @@ class MealDetailsPage extends StatefulWidget {
 class _MealDetailsPageState extends State<MealDetailsPage> {
   int _quantity = 1;
   bool _isLoading = false;
-
-  // Mock meal data - TODO: Replace with actual API call
-  late final Map<String, dynamic> _meal;
+  bool _isLoadingMeal = true;
+  Meal? _meal;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _meal = _getMockMealData();
+    _loadMeal();
+  }
+
+  Future<void> _loadMeal() async {
+    try {
+      setState(() {
+        _isLoadingMeal = true;
+        _error = null;
+      });
+
+      final repository = MockMealRepository();
+      final meal = await repository.getById(widget.mealId);
+
+      setState(() {
+        _meal = meal;
+        _isLoadingMeal = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load meal: ${e.toString()}';
+        _isLoadingMeal = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingMeal) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null || _meal == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/catalog'),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_error ?? 'Meal not found'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadMeal,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -48,9 +102,9 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
                   const SizedBox(height: 24),
                   _buildNutritionInfo(),
                   const SizedBox(height: 24),
-                  _buildIngredients(),
+                  _buildAllergensAndTags(),
                   const SizedBox(height: 24),
-                  _buildInstructions(),
+                  _buildAvailabilityInfo(),
                   const SizedBox(height: 100), // Bottom padding for FAB
                 ],
               ),
@@ -127,12 +181,22 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
             Container(
               height: double.infinity,
               width: double.infinity,
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.restaurant,
-                size: 80,
-                color: Colors.grey,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                image: _meal?.imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(_meal!.imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: _meal?.imageUrl == null
+                  ? const Icon(
+                      Icons.restaurant,
+                      size: 80,
+                      color: Colors.grey,
+                    )
+                  : null,
             ),
             Container(
               decoration: BoxDecoration(
@@ -171,12 +235,22 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
         child: Container(
           height: 200,
           width: double.infinity,
-          color: Colors.grey[300],
-          child: const Icon(
-            Icons.restaurant,
-            size: 60,
-            color: Colors.grey,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            image: _meal?.imageUrl != null
+                ? DecorationImage(
+                    image: NetworkImage(_meal!.imageUrl!),
+                    fit: BoxFit.cover,
+                  )
+                : null,
           ),
+          child: _meal?.imageUrl == null
+              ? const Icon(
+                  Icons.restaurant,
+                  size: 60,
+                  color: Colors.grey,
+                )
+              : null,
         ),
       ),
     ).animate().fadeIn(delay: AppConstants.shortAnimation);
@@ -191,7 +265,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
           children: [
             Expanded(
               child: Text(
-                _meal['name'] ?? 'Unknown Meal',
+                _meal!.title,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -200,7 +274,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
               ),
             ),
             Text(
-              '\$${(_meal['price'] ?? 0.0).toStringAsFixed(2)}',
+              '₹${_meal!.price.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -215,40 +289,41 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
         Row(
           children: [
             Icon(
-              Icons.star,
-              size: 20,
-              color: Colors.amber[600],
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '${_meal['rating'] ?? 0.0}',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Icon(
               Icons.access_time,
               size: 20,
               color: AppTheme.textSecondary,
             ),
             const SizedBox(width: 4),
             Text(
-              _meal['prepTime'] ?? 'Unknown',
+              '${_meal!.etaMinutesRange?.min ?? 20}-${_meal!.etaMinutesRange?.max ?? 40} min',
               style: TextStyle(
                 fontSize: 16,
                 color: AppTheme.textSecondary,
               ),
             ),
+            if (_meal!.portionSizeGrams != null) ...[
+              const SizedBox(width: 16),
+              Icon(
+                Icons.scale,
+                size: 20,
+                color: AppTheme.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${_meal!.portionSizeGrams!.toInt()}g',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
           ],
         )
             .animate()
             .slideX(begin: -0.3, end: 0, delay: AppConstants.mediumAnimation),
         const SizedBox(height: 16),
         Text(
-          _meal['description'] ?? 'No description available',
+          _meal!.description ?? 'No description available',
           style: TextStyle(
             fontSize: 16,
             color: AppTheme.textSecondary,
@@ -276,23 +351,30 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
           children: [
             _buildNutritionCard(
               'Calories',
-              '${_meal['calories'] ?? 0}',
+              '${_meal!.calories.toInt()}',
               Icons.local_fire_department,
               AppTheme.secondaryColor,
             ),
             const SizedBox(width: 16),
             _buildNutritionCard(
               'Protein',
-              '25g',
+              '${_meal!.macros.protein.toInt()}g',
               Icons.fitness_center,
               Colors.blue,
             ),
             const SizedBox(width: 16),
             _buildNutritionCard(
               'Carbs',
-              '45g',
+              '${_meal!.macros.carbs.toInt()}g',
               Icons.grain,
               Colors.orange,
+            ),
+            const SizedBox(width: 16),
+            _buildNutritionCard(
+              'Fat',
+              '${_meal!.macros.fat.toInt()}g',
+              Icons.water_drop,
+              Colors.red,
             ),
           ],
         )
@@ -337,475 +419,238 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
     );
   }
 
-  Widget _buildIngredients() {
+  Widget _buildAllergensAndTags() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Ingredients',
+          'Allergens & Tags',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ).animate().fadeIn(delay: AppConstants.shortAnimation),
-
         const SizedBox(height: 16),
 
-        // Mock ingredients - TODO: Replace with actual data
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Fresh mixed greens',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
+        // Allergens
+        if (_meal!.allergens.isNotEmpty) ...[
+          Text(
+            'Allergens:',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+            ),
           ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _meal!.allergens
+                .map((allergen) => _buildAllergenTag(allergen))
+                .toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
 
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Grilled chicken breast',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
+        // Tags
+        if (_meal!.tags.isNotEmpty) ...[
+          Text(
+            'Tags:',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+            ),
           ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _meal!.tags.map((tag) => _buildTag(tag)).toList(),
+          ),
+          const SizedBox(height: 16),
+        ],
 
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
+        // Nutrition Source
+        Row(
+          children: [
+            Icon(
+              Icons.science,
+              size: 20,
+              color: AppTheme.primaryColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Nutrition Source: ',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+            Text(
+              _meal!.nutritionSource.replaceAll('_', ' ').toUpperCase(),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.primaryColor,
               ),
-              const SizedBox(width: 12),
-              Text(
-                'Cherry tomatoes',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Cucumber',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Red onion',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Olive oil',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Balsamic vinegar',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Row(
-            children: [
-              Icon(
-                Icons.circle,
-                size: 8,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Salt and pepper',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-      ],
+            ),
+          ],
+        ),
+      ]
+          .animate()
+          .slideY(begin: 0.3, end: 0, delay: AppConstants.mediumAnimation),
     );
   }
 
-  Widget _buildInstructions() {
+  Widget _buildAllergenTag(String allergen) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.red.withOpacity(0.3)),
+      ),
+      child: Text(
+        allergen,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.red[700],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.primaryColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvailabilityInfo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Preparation Instructions',
+          'Meal Details',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.textPrimary,
           ),
         ).animate().fadeIn(delay: AppConstants.shortAnimation),
-
         const SizedBox(height: 16),
 
-        // Mock instructions - TODO: Replace with actual data
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // Cuisine
+        if (_meal!.cuisine != null) ...[
+          Row(
             children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '1',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              Icon(
+                Icons.restaurant,
+                size: 24,
+                color: AppTheme.primaryColor,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Wash and prepare all vegetables',
+                  'Cuisine: ${_meal!.cuisine}',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppTheme.textSecondary,
-                    height: 1.5,
                   ),
                 ),
               ),
             ],
           ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+          const SizedBox(height: 12),
+        ],
 
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // Spice Level
+        if (_meal!.spiceLevel != null) ...[
+          Row(
             children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '2',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              Icon(
+                Icons.local_fire_department,
+                size: 24,
+                color: Colors.orange,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Season chicken breast with salt and pepper',
+                  'Spice Level: ${_meal!.spiceLevel == 0 ? "Mild" : _meal!.spiceLevel == 1 ? "Medium" : _meal!.spiceLevel == 2 ? "Hot" : "Very Hot"}',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppTheme.textSecondary,
-                    height: 1.5,
                   ),
                 ),
               ),
             ],
           ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+          const SizedBox(height: 12),
+        ],
 
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '3',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+        // Vegetarian Status
+        Row(
+          children: [
+            Icon(
+              _meal!.isVeg == true ? Icons.eco : Icons.restaurant,
+              size: 24,
+              color: _meal!.isVeg == true ? Colors.green : Colors.orange,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                _meal!.isVeg == true ? 'Vegetarian' : 'Non-Vegetarian',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Grill chicken until fully cooked',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
 
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '4',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+        // Availability Status
+        Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              size: 24,
+              color: AppTheme.successColor,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'In stock',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Slice vegetables and arrange on plate',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '5',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Place grilled chicken on top',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '6',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Drizzle with olive oil and balsamic vinegar',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '7',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Serve immediately while warm',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppTheme.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: AppConstants.mediumAnimation),
-      ],
+            ),
+          ],
+        ),
+      ]
+          .animate()
+          .slideY(begin: 0.3, end: 0, delay: AppConstants.mediumAnimation),
     );
   }
 
@@ -869,7 +714,7 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
                         ),
                       )
                     : Text(
-                        'Add to Cart - \$${((_meal['price'] ?? 0.0) * _quantity).toStringAsFixed(2)}',
+                        'Add to Cart - ₹${((_meal!.price) * _quantity).toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -914,20 +759,5 @@ class _MealDetailsPageState extends State<MealDetailsPage> {
         _isLoading = false;
       });
     }
-  }
-
-  Map<String, dynamic> _getMockMealData() {
-    // Mock data - TODO: Replace with actual API call
-    return {
-      'id': widget.mealId,
-      'name': 'Grilled Chicken Salad',
-      'description':
-          'A fresh and nutritious salad featuring tender grilled chicken breast served over a bed of mixed greens with cherry tomatoes, cucumber, and red onion. Dressed with a light olive oil and balsamic vinegar dressing.',
-      'price': 12.99,
-      'calories': 320,
-      'category': 'Lunch',
-      'rating': 4.5,
-      'prepTime': '15 min',
-    };
   }
 }

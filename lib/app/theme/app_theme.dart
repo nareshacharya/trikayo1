@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_constants.dart';
 
@@ -164,81 +163,97 @@ class AppTheme {
 
   // Build Text Theme
   static TextTheme _buildTextTheme(Color textColor) {
-    return GoogleFonts.interTextTheme().copyWith(
-      displayLarge: GoogleFonts.inter(
+    // Use system fonts for better reliability and offline support
+    return TextTheme(
+      displayLarge: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.bold,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      displaySmall: GoogleFonts.inter(
+      displaySmall: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      headlineLarge: GoogleFonts.inter(
+      headlineLarge: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      titleLarge: GoogleFonts.inter(
+      titleLarge: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      titleMedium: GoogleFonts.inter(
+      titleMedium: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      titleSmall: GoogleFonts.inter(
+      titleSmall: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.normal,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.normal,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.normal,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: textColor,
+        fontFamily: 'SF Pro Display',
       ),
     );
   }

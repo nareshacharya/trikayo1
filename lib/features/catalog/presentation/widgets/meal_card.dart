@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../data/models/meal.dart';
 
 class MealCard extends StatelessWidget {
-  final Map<String, dynamic> meal;
+  final Meal meal;
   final VoidCallback onTap;
 
   const MealCard({
@@ -55,86 +56,97 @@ class MealCard extends StatelessWidget {
           child: Container(
             height: 120,
             width: double.infinity,
-            color: Colors.grey[300],
-            child: const Icon(
-              Icons.restaurant,
-              size: 40,
-              color: Colors.grey,
-            ),
-          ),
-        ),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey[300],
+              image: meal.imageUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(meal.imageUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.star,
-                  size: 14,
-                  color: Colors.amber,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  (meal['rating'] ?? 0.0).toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+            child: meal.imageUrl == null
+                ? const Icon(
+                    Icons.restaurant,
+                    size: 40,
+                    color: Colors.grey,
+                  )
+                : null,
           ),
         ),
-        // TODO: Add dietary badges when dietary info is available
-        // if (isVegetarian || isVegan || isGlutenFree)
-        //   Positioned(
-        //     top: 8,
-        //     left: 8,
-        //     child: _buildDietaryBadge(),
+        // TODO: Add rating when available in the model
+        // Positioned(
+        //   top: 8,
+        //   right: 8,
+        //   child: Container(
+        //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        //     decoration: BoxDecoration(
+        //       color: Colors.black.withOpacity(0.7),
+        //       borderRadius: BorderRadius.circular(12),
+        //     ),
+        //     child: Row(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         const Icon(
+        //           Icons.star,
+        //           size: 14,
+        //           color: Colors.amber,
+        //         ),
+        //         const SizedBox(width: 4),
+        //         Text(
+        //           '4.5',
+        //           style: const TextStyle(
+        //             color: Colors.white,
+        //             fontSize: 12,
+        //             fontWeight: FontWeight.w600,
+        //           ),
+        //         ),
+        //       ],
+        //     ),
         //   ),
+        // ),
+        // Dietary badges
+        if (meal.isVeg == true || meal.tags.contains('Vegan'))
+          Positioned(
+            top: 8,
+            left: 8,
+            child: _buildDietaryBadge(),
+          ),
       ],
     );
   }
 
-  // Widget _buildDietaryBadge() {
-  //   String label = '';
-  //   Color color = Colors.green;
+  Widget _buildDietaryBadge() {
+    String label = '';
+    Color color = Colors.green;
 
-  //   if (isVegan) {
-  //     label = 'Vegan';
-  //     color = Colors.green;
-  //   } else if (isVegetarian) {
-  //     label = 'Veg';
-  //     color = Colors.lightGreen;
-  //   } else if (isGlutenFree) {
-  //     label = 'GF';
-  //     color = Colors.orange;
-  //   }
+    if (meal.tags.contains('Vegan')) {
+      label = 'Vegan';
+      color = Colors.green;
+    } else if (meal.isVeg == true) {
+      label = 'Veg';
+      color = Colors.lightGreen;
+    } else if (meal.allergens.contains('Gluten') == false) {
+      label = 'GF';
+      color = Colors.orange;
+    }
 
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-  //     decoration: BoxDecoration(
-  //       color: color,
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       child: Text(
-  //         label,
-  //         style: const TextStyle(
-  //           color: Colors.white,
-  //           fontSize: 10,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //     );
-  //   }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 
   Widget _buildHeaderSection(BuildContext context) {
     return Row(
@@ -142,7 +154,7 @@ class MealCard extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            meal['name'] ?? 'Unknown Meal',
+            meal.title,
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
@@ -152,7 +164,7 @@ class MealCard extends StatelessWidget {
           ),
         ),
         Text(
-          '\$${(meal['price'] ?? 0.0).toStringAsFixed(2)}',
+          '₹${meal.price.toStringAsFixed(2)}',
           style: TextStyle(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -165,7 +177,7 @@ class MealCard extends StatelessWidget {
 
   Widget _buildDescriptionSection() {
     return Text(
-      meal['description'] ?? 'No description available',
+      meal.description ?? 'No description available',
       style: TextStyle(
         color: Colors.grey[600],
         fontSize: 12,
@@ -188,7 +200,7 @@ class MealCard extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              '${meal['calories'] ?? 0} cal',
+              '${meal.calories.toInt()} cal',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontSize: 12,
@@ -204,7 +216,7 @@ class MealCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            meal['category'] ?? 'Unknown',
+            meal.cuisine ?? 'Unknown',
             style: TextStyle(
               color: Colors.grey[700],
               fontSize: 10,

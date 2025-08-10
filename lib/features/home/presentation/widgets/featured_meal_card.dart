@@ -47,12 +47,22 @@ class FeaturedMealCard extends StatelessWidget {
                 child: Container(
                   height: 100,
                   width: double.infinity,
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.restaurant,
-                    size: 40,
-                    color: Colors.grey,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    image: imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
+                  child: imageUrl.isEmpty
+                      ? const Icon(
+                          Icons.restaurant,
+                          size: 40,
+                          color: Colors.grey,
+                        )
+                      : null,
                 ),
               ),
               Expanded(

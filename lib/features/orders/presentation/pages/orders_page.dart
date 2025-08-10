@@ -222,10 +222,23 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
     return [
       Order(
         id: 'ORD001',
+        userId: 'user1',
         items: [
-          OrderItem(mealId: '1', quantity: 1),
-          OrderItem(mealId: '2', quantity: 1),
+          OrderItem(
+              mealId: '1',
+              vendorId: 'vendor1',
+              qty: 1,
+              unitPrice: 14.99,
+              lineTotal: 14.99),
+          OrderItem(
+              mealId: '2',
+              vendorId: 'vendor1',
+              qty: 1,
+              unitPrice: 14.98,
+              lineTotal: 14.98),
         ],
+        subtotal: 29.97,
+        deliveryFee: 0.0,
         total: 29.97,
         address: '123 Main St, City',
         slot: '12:30 PM - 1:30 PM',
@@ -234,9 +247,17 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
       ),
       Order(
         id: 'ORD002',
+        userId: 'user1',
         items: [
-          OrderItem(mealId: '3', quantity: 1),
+          OrderItem(
+              mealId: '3',
+              vendorId: 'vendor2',
+              qty: 1,
+              unitPrice: 15.99,
+              lineTotal: 15.99),
         ],
+        subtotal: 15.99,
+        deliveryFee: 0.0,
         total: 15.99,
         address: '456 Oak Ave, City',
         slot: '2:15 PM - 3:15 PM',
@@ -251,10 +272,23 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
     return [
       Order(
         id: 'ORD003',
+        userId: 'user1',
         items: [
-          OrderItem(mealId: '4', quantity: 2),
-          OrderItem(mealId: '5', quantity: 1),
+          OrderItem(
+              mealId: '4',
+              vendorId: 'vendor3',
+              qty: 2,
+              unitPrice: 12.99,
+              lineTotal: 25.98),
+          OrderItem(
+              mealId: '5',
+              vendorId: 'vendor3',
+              qty: 1,
+              unitPrice: 0.0,
+              lineTotal: 0.0),
         ],
+        subtotal: 25.98,
+        deliveryFee: 0.0,
         total: 25.98,
         address: '789 Pine St, City',
         slot: '6:00 PM - 7:00 PM',
@@ -265,10 +299,23 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
       ),
       Order(
         id: 'ORD004',
+        userId: 'user1',
         items: [
-          OrderItem(mealId: '6', quantity: 1),
-          OrderItem(mealId: '7', quantity: 1),
+          OrderItem(
+              mealId: '6',
+              vendorId: 'vendor4',
+              qty: 1,
+              unitPrice: 9.99,
+              lineTotal: 9.99),
+          OrderItem(
+              mealId: '7',
+              vendorId: 'vendor4',
+              qty: 1,
+              unitPrice: 8.99,
+              lineTotal: 8.99),
         ],
+        subtotal: 18.98,
+        deliveryFee: 0.0,
         total: 18.98,
         address: '321 Elm St, City',
         slot: '1:00 PM - 2:00 PM',
@@ -285,10 +332,23 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
     return [
       Order(
         id: 'ORD005',
+        userId: 'user1',
         items: [
-          OrderItem(mealId: '8', quantity: 1),
-          OrderItem(mealId: '9', quantity: 1),
+          OrderItem(
+              mealId: '8',
+              vendorId: 'vendor5',
+              qty: 1,
+              unitPrice: 11.99,
+              lineTotal: 11.99),
+          OrderItem(
+              mealId: '9',
+              vendorId: 'vendor5',
+              qty: 1,
+              unitPrice: 10.98,
+              lineTotal: 10.98),
         ],
+        subtotal: 22.97,
+        deliveryFee: 0.0,
         total: 22.97,
         address: '654 Maple Dr, City',
         slot: '7:30 PM - 8:30 PM',

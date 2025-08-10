@@ -451,7 +451,7 @@ class _IntakePageState extends ConsumerState<IntakePage> {
     double total = 0;
     for (final meals in _intakeData.values) {
       for (final meal in meals) {
-        total += meal['calories'] as double;
+        total += (meal['calories'] as int).toDouble();
       }
     }
     return total;
@@ -461,7 +461,7 @@ class _IntakePageState extends ConsumerState<IntakePage> {
     double total = 0;
     for (final meals in _intakeData.values) {
       for (final meal in meals) {
-        total += meal[nutrient] as double;
+        total += (meal[nutrient] as int).toDouble();
       }
     }
     return total;

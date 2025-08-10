@@ -3,15 +3,54 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../data/models/meal.dart';
+import '../../../../data/repositories/mock_meal_repository.dart';
 import '../widgets/featured_meal_card.dart';
 import '../widgets/quick_actions.dart';
 import '../widgets/stats_summary.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  List<Meal> _featuredMeals = [];
+  bool _isLoadingFeatured = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFeaturedMeals();
+  }
+
+  Future<void> _loadFeaturedMeals() async {
+    try {
+      setState(() {
+        _isLoadingFeatured = true;
+      });
+
+      final repository = MockMealRepository();
+      final meals = await repository.search(
+        page: 1,
+        pageSize: 5,
+      );
+
+      setState(() {
+        _featuredMeals = meals;
+        _isLoadingFeatured = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFeatured = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -146,25 +185,42 @@ class HomePage extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: FeaturedMealCard(
-                  mealId: 'meal_$index',
-                  name: 'Healthy Bowl ${index + 1}',
-                  description: 'Nutritious and delicious',
-                  imageUrl: 'https://picsum.photos/200/200?random=$index',
-                  calories: 350 + (index * 50),
-                ),
-              );
-            },
+        if (_isLoadingFeatured)
+          const SizedBox(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_featuredMeals.isEmpty)
+          const SizedBox(
+            height: 200,
+            child: Center(
+              child: Text(
+                'No featured meals available',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _featuredMeals.length,
+              itemBuilder: (context, index) {
+                final meal = _featuredMeals[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: FeaturedMealCard(
+                    mealId: meal.id,
+                    name: meal.title,
+                    description: meal.description ?? 'No description available',
+                    imageUrl: meal.imageUrl ?? '',
+                    calories: meal.calories.toInt(),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }

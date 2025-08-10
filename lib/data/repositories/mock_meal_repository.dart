@@ -4,86 +4,107 @@ import 'base_repository.dart';
 
 class MockMealRepository implements MealRepository {
   @override
-  Future<List<Meal>> getAll() async {
+  Future<List<Meal>> search({
+    String? query,
+    List<String>? cuisines,
+    List<String>? tags,
+    bool? isVeg,
+    int? maxCalories,
+    double? radiusKm,
+    String? vendorId,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
-    return MockData.meals;
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    List<Meal> filteredMeals = MockData.meals;
+
+    // Apply filters
+    if (query != null && query.isNotEmpty) {
+      final lowercaseQuery = query.toLowerCase();
+      filteredMeals = filteredMeals.where((meal) {
+        return meal.title.toLowerCase().contains(lowercaseQuery) ||
+            (meal.description?.toLowerCase().contains(lowercaseQuery) ??
+                false) ||
+            meal.tags.any((tag) => tag.toLowerCase().contains(lowercaseQuery));
+      }).toList();
+    }
+
+    if (cuisines != null && cuisines.isNotEmpty) {
+      filteredMeals = filteredMeals.where((meal) {
+        return meal.cuisine != null && cuisines.contains(meal.cuisine);
+      }).toList();
+    }
+
+    if (tags != null && tags.isNotEmpty) {
+      filteredMeals = filteredMeals.where((meal) {
+        return tags.any((tag) => meal.tags.contains(tag));
+      }).toList();
+    }
+
+    if (isVeg != null) {
+      filteredMeals = filteredMeals.where((meal) {
+        return meal.isVeg == isVeg;
+      }).toList();
+    }
+
+    if (maxCalories != null) {
+      filteredMeals = filteredMeals.where((meal) {
+        return meal.calories <= maxCalories;
+      }).toList();
+    }
+
+    if (vendorId != null) {
+      filteredMeals = filteredMeals.where((meal) {
+        return meal.vendorId == vendorId;
+      }).toList();
+    }
+
+    // Apply pagination
+    final startIndex = (page - 1) * pageSize;
+    final endIndex = startIndex + pageSize;
+
+    if (startIndex >= filteredMeals.length) {
+      return [];
+    }
+
+    return filteredMeals.sublist(
+      startIndex,
+      endIndex > filteredMeals.length ? filteredMeals.length : endIndex,
+    );
   }
 
   @override
-  Future<Meal?> getById(String id) async {
+  Future<Meal> getById(String id) async {
     await Future.delayed(const Duration(milliseconds: 300));
     try {
-      return MockData.meals.firstWhere((meal) => meal.id == id);
+      final meal = MockData.meals.firstWhere((meal) => meal.id == id);
+      return meal;
     } catch (e) {
-      return null;
+      throw Exception('Meal not found');
     }
   }
 
   @override
-  Future<Meal> create(Meal item) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    // In a real implementation, this would save to a database
-    return item;
-  }
-
-  @override
-  Future<Meal> update(String id, Meal item) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    // In a real implementation, this would update the database
-    return item;
-  }
-
-  @override
-  Future<bool> delete(String id) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    // In a real implementation, this would delete from database
-    return true;
-  }
-
-  @override
-  Future<List<Meal>> searchMeals(String query) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (query.isEmpty) return MockData.meals;
-
-    final lowercaseQuery = query.toLowerCase();
-    return MockData.meals.where((meal) {
-      return meal.title.toLowerCase().contains(lowercaseQuery) ||
-          meal.tags.any((tag) => tag.toLowerCase().contains(lowercaseQuery));
-    }).toList();
-  }
-
-  @override
-  Future<List<Meal>> getMealsByVendor(String vendorId) async {
+  Future<List<Meal>> byVendor(String vendorId,
+      {int page = 1, int pageSize = 20}) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return MockData.meals.where((meal) => meal.vendorId == vendorId).toList();
-  }
 
-  @override
-  Future<List<Meal>> getMealsByTags(List<String> tags) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (tags.isEmpty) return MockData.meals;
+    final vendorMeals =
+        MockData.meals.where((meal) => meal.vendorId == vendorId).toList();
 
-    return MockData.meals.where((meal) {
-      return tags.any((tag) => meal.tags.contains(tag));
-    }).toList();
-  }
+    // Apply pagination
+    final startIndex = (page - 1) * pageSize;
+    final endIndex = startIndex + pageSize;
 
-  @override
-  Future<List<Meal>> getMealsByCaloriesRange(double min, double max) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return MockData.meals.where((meal) {
-      return meal.calories >= min && meal.calories <= max;
-    }).toList();
-  }
+    if (startIndex >= vendorMeals.length) {
+      return [];
+    }
 
-  @override
-  Future<List<Meal>> getRecommendedMeals(String userId) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    // Mock recommendation logic - return random meals
-    final random = DateTime.now().millisecondsSinceEpoch;
-    final shuffled = List<Meal>.from(MockData.meals);
-    shuffled.shuffle();
-    return shuffled.take(5).toList();
+    return vendorMeals.sublist(
+      startIndex,
+      endIndex > vendorMeals.length ? vendorMeals.length : endIndex,
+    );
   }
 }

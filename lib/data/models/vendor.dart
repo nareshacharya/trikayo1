@@ -10,6 +10,12 @@ class Vendor extends Equatable {
   final String? logoUrl;
   final double? rating;
   final String area;
+  final List<String> cuisines;
+  final List<String> serviceAreas;
+  final bool isOpen;
+  final int? avgPrepMinutes;
+  final double? deliveryFee;
+  final double? minOrderValue;
 
   const Vendor({
     required this.id,
@@ -17,6 +23,12 @@ class Vendor extends Equatable {
     this.logoUrl,
     this.rating,
     required this.area,
+    required this.cuisines,
+    required this.serviceAreas,
+    required this.isOpen,
+    this.avgPrepMinutes,
+    this.deliveryFee,
+    this.minOrderValue,
   });
 
   factory Vendor.fromJson(Map<String, dynamic> json) => _$VendorFromJson(json);
@@ -28,6 +40,12 @@ class Vendor extends Equatable {
     String? logoUrl,
     double? rating,
     String? area,
+    List<String>? cuisines,
+    List<String>? serviceAreas,
+    bool? isOpen,
+    int? avgPrepMinutes,
+    double? deliveryFee,
+    double? minOrderValue,
   }) {
     return Vendor(
       id: id ?? this.id,
@@ -35,9 +53,27 @@ class Vendor extends Equatable {
       logoUrl: logoUrl ?? this.logoUrl,
       rating: rating ?? this.rating,
       area: area ?? this.area,
+      cuisines: cuisines ?? this.cuisines,
+      serviceAreas: serviceAreas ?? this.serviceAreas,
+      isOpen: isOpen ?? this.isOpen,
+      avgPrepMinutes: avgPrepMinutes ?? this.avgPrepMinutes,
+      deliveryFee: deliveryFee ?? this.deliveryFee,
+      minOrderValue: minOrderValue ?? this.minOrderValue,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, logoUrl, rating, area];
+  List<Object?> get props => [
+        id,
+        name,
+        logoUrl,
+        rating,
+        area,
+        cuisines,
+        serviceAreas,
+        isOpen,
+        avgPrepMinutes,
+        deliveryFee,
+        minOrderValue
+      ];
 }

@@ -53,8 +53,8 @@ class IntakeLog extends Equatable {
   final String id;
   final String orderId;
   final String mealId;
-  final String status;
-  final double fraction;
+  final String status; // pending|consumed|partial|skipped
+  final double fraction; // 1.0|0.75|0.5|0.25
   final Nutrients nutrients;
   final DateTime? confirmedAt;
   final DateTime createdAt;
@@ -118,13 +118,13 @@ class IntakeLog extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    orderId,
-    mealId,
-    status,
-    fraction,
-    nutrients,
-    confirmedAt,
-    createdAt,
-  ];
+        id,
+        orderId,
+        mealId,
+        status,
+        fraction,
+        nutrients,
+        confirmedAt,
+        createdAt,
+      ];
 }
